@@ -1,25 +1,41 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import "./App.css";
 
-class App extends Component {
+import SearchBar from "./components/SearchBar";
+import Badge from "react-bootstrap/Badge";
+
+interface AppState {
+  packageIds: string[];
+}
+
+class App extends React.Component<any, AppState> {
+  state: AppState = {
+    packageIds: []
+  };
+
+  addPackageId = (packageId: string) => {
+    this.setState(prevState => {
+      return {
+        packageIds: prevState.packageIds.concat([packageId])
+      };
+    });
+    this.forceUpdate();
+  };
+
   render() {
+    const { packageIds } = this.state;
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.tsx</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+      <div className={"App container"}>
+        <h1>NuGet Trends</h1>
+        <SearchBar onSelected={this.addPackageId} />
+        <hr />
+        <div>
+          {packageIds.map(x => (
+            <Badge key={x} pill variant="primary" style={{ margin: "0px 5px" }}>
+              {x}
+            </Badge>
+          ))}
+        </div>
       </div>
     );
   }
