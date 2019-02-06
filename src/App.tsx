@@ -2,15 +2,21 @@ import React, { Component } from "react";
 import "./App.css";
 
 import SearchBar from "./components/SearchBar";
-import Badge from "react-bootstrap/Badge";
+import { nugetSearch, SearchResult } from "./services/nugetService";
+import PackageCard from "./components/PackageCard";
 
 interface AppState {
   packageIds: string[];
+  packages: SearchResult[];
 }
+
+const max = 4;
+const variants = ["primary", "success", "danger", "warning"];
 
 class App extends React.Component<any, AppState> {
   state: AppState = {
-    packageIds: []
+    packageIds: [],
+    packages: []
   };
 
   addPackageId = (packageId: string) => {
@@ -19,7 +25,19 @@ class App extends React.Component<any, AppState> {
         packageIds: prevState.packageIds.concat([packageId])
       };
     });
-    this.forceUpdate();
+
+    const that = this;
+    setTimeout(async () => {
+      that.addPackage(await nugetSearch(packageId));
+    }, 100);
+  };
+
+  addPackage = (item: SearchResult) => {
+    this.setState(prevState => {
+      return {
+        packages: prevState.packages.concat([item])
+      };
+    });
   };
 
   render() {
@@ -30,10 +48,15 @@ class App extends React.Component<any, AppState> {
         <SearchBar onSelected={this.addPackageId} />
         <hr />
         <div>
-          {packageIds.map(x => (
-            <Badge key={x} pill variant="primary" style={{ margin: "0px 5px" }}>
-              {x}
-            </Badge>
+          {packageIds.map((value, index) => (
+            <PackageCard
+              key={value}
+              backGround={variants[index]}
+              packageId={value}
+              metadata={this.state.packages.find(x => {
+                return x.id.toLowerCase() === value.toLowerCase();
+              })}
+            />
           ))}
         </div>
       </div>
